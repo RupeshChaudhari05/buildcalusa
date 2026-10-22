@@ -2,7 +2,14 @@
 $y = (int) config_item('price_year');
 $by_cat = array();
 foreach ($live as $t) { $by_cat[$t['category']][] = $t; }
-$newest = $live ? key($live) : NULL;
+// "New" badge only when exactly one tool has the latest publish date (not on a launch-day batch)
+$newest = NULL;
+if ($live)
+{
+	$dates  = array_count_values(array_column($live, 'published'));
+	$latest = max(array_keys($dates));
+	$newest = $dates[$latest] === 1 ? key($live) : NULL;
+}
 ?>
 <div class="container">
 	<section class="home-hero">

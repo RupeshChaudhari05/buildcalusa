@@ -26,43 +26,37 @@ Production pages inline `assets/dist/site.css` (~8 KB gzipped) and load the mini
 Localhost uses the readable source files. If `assets/dist/` is missing, production falls back to the source files.
 Upload `assets/dist/`. You don't need to upload `node_modules/`.
 
-## Release schedule (one tool every 3 days)
-| Date | Tool | Date | Tool |
-|---|---|---|---|
-| Oct 24 | Fence cost | Nov 17 | Gravel |
-| Oct 27 | Deck boards | Nov 20 | Pavers |
-| Oct 30 | Asphalt | Nov 23 | Roof pitch |
-| Nov 2 | Roofing shingles | Nov 26 | Paint |
-| Nov 5 | Concrete | Nov 29 | Retaining wall |
-| Nov 8 | Stair stringer | Dec 2 | Concrete block |
-| Nov 11 | Drywall | Dec 5 | Flooring |
-| Nov 14 | Tile | Dec 8 | Mulch |
-| | | Dec 11 | Insulation |
-| | | Dec 14 | Board foot |
-| | | Dec 17 | Contractor markup |
-| | | Dec 20 | Bathroom remodel cost |
-| Dec 23 | Wood fence (materials) | Jan 4 | Deck cost |
-| Dec 26 | Fence post concrete | Jan 7 | Roof cost (asphalt/metal/tile) |
-| Dec 29 | Vinyl fence (materials) | Jan 10 | Siding cost |
-| Jan 1 | Chain link fence (materials) | Jan 13 | Deck & fence stain |
-| Jan 16 | Dumpster rental cost | Jan 22 | Dumpster weight |
-| Jan 19 | Dumpster size | Jan 25 | Junk removal cost |
+## Launch: all 32 tools live together (Oct 22, 2026)
+Every tool has `published` = 2026-10-22, so the whole site is live the moment it is deployed.
+Category hubs, the sitemap, the RSS feed and the home page all list every tool from day one.
+
+| Category | Tools |
+|---|---|
+| Concrete & Paving | Concrete, concrete block, asphalt |
+| Roofing & Siding | Roofing shingles, roof cost, roof pitch, siding cost |
+| Fencing & Outdoor | Fence cost, wood / vinyl / chain link fence, fence post concrete, deck cost, stain |
+| Landscaping | Gravel, pavers, retaining wall, mulch |
+| Framing & Lumber | Deck boards, stair stringer, board foot |
+| Interior & Remodeling | Drywall, tile, flooring, paint, insulation, bathroom remodel cost |
+| Demolition & Debris | Dumpster rental cost, dumpster size, dumpster weight, junk removal cost |
+| Contractor Business | Contractor markup |
 
 The dumpster tools sit in the "Demolition & Debris" hub (`/demolition-debris-calculators`).
 Towing was left out on purpose: it is an auto topic, not construction, and would dilute the site's topical focus.
 
-**Before the January launches:** re-check prices, then raise `price_year` to 2027. Otherwise titles still say [2026] in 2027.
+**Every January:** re-check prices, then raise `PRICE_YEAR` in `.env` (titles show the price year). Change a tool's `updated` date only when you actually revise it.
 
 **No duplicate-intent pages.** The "wood/vinyl/chain link fence cost" searches are answered by sections on `/fence-cost-calculator`. The material calculators target "how many pickets, panels or rolls". Don't add separate cost pages for each material: Google treats that as scaled or doorway content.
 
 ## Lead gen ("Get free local quotes")
-- Paste a partner tracking link per trade into `quote_links` in `application/config/site.php`. Partners include Angi/HomeAdvisor, Modernize (QuinStreet) and Networx.
+- Paste a partner tracking link per trade into `QUOTE_LINK_<TRADE>` in `.env`. Partners include Angi/HomeAdvisor, Modernize (QuinStreet) and Networx.
 - Trades without a link show no button. The button sits under the result, is optional, and never blocks the calculator.
 - The partner's own form collects contact details and TCPA consent. The privacy policy and disclaimer already describe this.
 
 Category hub pages (e.g. `/concrete-calculators`) appear once a category has a live tool. They are noindexed until the category has two.
 
-## Date-wise release
+## Scheduling future tools
+Launch-day tools are all live. For a NEW tool you can still pick a future date:
 A tool goes live automatically at midnight (America/New_York) on its `published` date.
 Until then its URL returns 404, and it is left out of the sitemap, RSS feed, menus and related links.
 On localhost every tool is shown (`show_unpublished = TRUE` in the development config).
