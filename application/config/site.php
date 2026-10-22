@@ -63,6 +63,8 @@ $config['quote_links'] = array(
 	'insulation'  => '',
 	'flooring'    => '',
 	'remodel'     => '',
+	'dumpster'    => '',
+	'junk'        => '',
 );
 
 // TRUE shows every tool regardless of publish date (preview only)

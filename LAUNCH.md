@@ -45,6 +45,11 @@ Upload `assets/dist/`. You don't need to upload `node_modules/`.
 | Dec 26 | Fence post concrete | Jan 7 | Roof cost (asphalt/metal/tile) |
 | Dec 29 | Vinyl fence (materials) | Jan 10 | Siding cost |
 | Jan 1 | Chain link fence (materials) | Jan 13 | Deck & fence stain |
+| Jan 16 | Dumpster rental cost | Jan 22 | Dumpster weight |
+| Jan 19 | Dumpster size | Jan 25 | Junk removal cost |
+
+The dumpster tools sit in the "Demolition & Debris" hub (`/demolition-debris-calculators`).
+Towing was left out on purpose: it is an auto topic, not construction, and would dilute the site's topical focus.
 
 **Before the January launches:** re-check prices, then raise `price_year` to 2027. Otherwise titles still say [2026] in 2027.
 

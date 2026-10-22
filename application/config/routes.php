@@ -34,6 +34,11 @@ $route['deck-cost-calculator']             = 'tools/deckcost';
 $route['roof-cost-calculator']             = 'tools/roofcost';
 $route['siding-cost-calculator']           = 'tools/siding';
 $route['stain-calculator']                 = 'tools/stain';
+$route['dumpster-rental-cost-calculator']  = 'tools/dumpstercost';
+$route['dumpster-size-calculator']         = 'tools/dumpstersize';
+$route['dumpster-weight-calculator']       = 'tools/dumpsterweight';
+$route['junk-removal-cost-calculator']     = 'tools/junk';
+$route['demolition-debris-calculators']    = 'pages/category/debris';
 
 // Category hubs
 $route['concrete-calculators']            = 'pages/category/concrete';

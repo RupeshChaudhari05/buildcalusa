@@ -31,6 +31,10 @@ class Tools extends MY_Controller {
 	public function roofcost()    { $this->show('roof-cost-calculator'); }
 	public function siding()      { $this->show('siding-cost-calculator'); }
 	public function stain()       { $this->show('stain-calculator'); }
+	public function dumpstercost()   { $this->show('dumpster-rental-cost-calculator'); }
+	public function dumpstersize()   { $this->show('dumpster-size-calculator'); }
+	public function dumpsterweight() { $this->show('dumpster-weight-calculator'); }
+	public function junk()           { $this->show('junk-removal-cost-calculator'); }
 
 	private function show($slug)
 	{

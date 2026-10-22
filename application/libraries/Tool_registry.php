@@ -50,6 +50,11 @@ class Tool_registry {
 			'slug'  => 'interior-calculators',
 			'intro' => 'Drywall, tile, flooring, paint and insulation, plus remodel budgets. Openings are deducted, waste is added by layout, and every price can be swapped for your supplier\'s.',
 		),
+		'debris' => array(
+			'label' => 'Demolition & Debris',
+			'slug'  => 'demolition-debris-calculators',
+			'intro' => 'Every tear-off and remodel ends with a pile. These tools size the dumpster, check the load against its weight limit, and price a rental against a junk-removal crew, so you don\'t pay for a second haul or an overweight fee.',
+		),
 		'business' => array(
 			'label' => 'Contractor Business',
 			'slug'  => 'contractor-business-calculators',
@@ -458,6 +463,64 @@ class Tool_registry {
 			'desc'      => 'Free deck and fence stain calculator: gallons of stain for any deck or fence, one or both sides, by wood condition and coats, with USD cost. No email.',
 			'blurb'     => 'Gallons of stain for decks and fences, by wood condition and coats.',
 		),
+
+		// Phase 8 – demolition & debris
+		'dumpster-rental-cost-calculator' => array(
+			'name'      => 'Dumpster Rental Cost Calculator',
+			'short'     => 'Dumpster Cost',
+			'icon'      => 'dumpster',
+			'category'  => 'debris',
+			'phase'     => 8,
+			'published' => '2027-01-16',
+			'updated'   => '2027-01-16',
+			'keyword'   => 'dumpster rental cost calculator',
+			'h1'        => 'Dumpster Rental Cost Calculator {year} – Price by Size',
+			'title'     => 'Dumpster Rental Cost Calculator [{year}] – Free Estimate',
+			'desc'      => 'Free dumpster rental cost calculator: price a 10 to 40 yard roll-off by size, rental days, weight allowance, overage fees and permit. No email.',
+			'blurb'     => 'Roll-off rental price by size, days, weight allowance and overage fees.',
+		),
+		'dumpster-size-calculator' => array(
+			'name'      => 'Dumpster Size Calculator',
+			'short'     => 'Dumpster Size',
+			'icon'      => 'dumpster',
+			'category'  => 'debris',
+			'phase'     => 8,
+			'published' => '2027-01-19',
+			'updated'   => '2027-01-19',
+			'keyword'   => 'what size dumpster do i need calculator',
+			'h1'        => 'Dumpster Size Calculator {year} – What Size Do I Need?',
+			'title'     => 'Dumpster Size Calculator [{year}] – What Size Do I Need?',
+			'desc'      => 'Free dumpster size calculator: cubic yards of debris by project or pile size, and the right 10, 15, 20, 30 or 40 yard dumpster. Instant, no email.',
+			'blurb'     => 'Cubic yards of debris and the right 10 to 40 yard dumpster.',
+		),
+		'dumpster-weight-calculator' => array(
+			'name'      => 'Dumpster Weight Calculator',
+			'short'     => 'Dumpster Weight',
+			'icon'      => 'weight',
+			'category'  => 'debris',
+			'phase'     => 8,
+			'published' => '2027-01-22',
+			'updated'   => '2027-01-22',
+			'keyword'   => 'dumpster weight calculator',
+			'h1'        => 'Dumpster Weight Calculator {year} – Tons of Debris',
+			'title'     => 'Dumpster Weight Calculator [{year}] – Tons & Overage Fees',
+			'desc'      => 'Free dumpster weight calculator: tons of shingles, drywall, concrete, dirt or mixed debris, checked against the weight limit with overage fees. No email.',
+			'blurb'     => 'Tons of debris by material, checked against the weight limit.',
+		),
+		'junk-removal-cost-calculator' => array(
+			'name'      => 'Junk Removal Cost Calculator',
+			'short'     => 'Junk Removal',
+			'icon'      => 'truck',
+			'category'  => 'debris',
+			'phase'     => 8,
+			'published' => '2027-01-25',
+			'updated'   => '2027-01-25',
+			'keyword'   => 'junk removal cost calculator',
+			'h1'        => 'Junk Removal Cost Calculator {year} – Truckload Prices',
+			'title'     => 'Junk Removal Cost Calculator [{year}] – Free Estimate',
+			'desc'      => 'Free junk removal cost calculator: price by truckload fraction or single items, with stairs, heavy items and disposal fees, vs. renting a dumpster. No email.',
+			'blurb'     => 'Junk hauler price by truckload or item, compared with a dumpster.',
+		),
 	);
 
 	/**
@@ -474,6 +537,8 @@ class Tool_registry {
 		'gravel-calculator' => 'landscaping', 'paver-calculator' => 'landscaping', 'retaining-wall-calculator' => 'landscaping', 'mulch-calculator' => 'landscaping',
 		'drywall-calculator' => 'drywall', 'paint-calculator' => 'painting', 'insulation-calculator' => 'insulation',
 		'tile-calculator' => 'flooring', 'flooring-calculator' => 'flooring', 'bathroom-remodel-cost-calculator' => 'remodel',
+		'dumpster-rental-cost-calculator' => 'dumpster', 'dumpster-size-calculator' => 'dumpster', 'dumpster-weight-calculator' => 'dumpster',
+		'junk-removal-cost-calculator' => 'junk',
 	);
 
 	public static function today()
