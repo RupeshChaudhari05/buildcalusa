@@ -4,6 +4,7 @@
 Options -Indexes
 ServerSignature Off
 AddDefaultCharset utf-8
+DirectoryIndex index.php
 
 # localhost = development, everything else = production (APP_ENV in .env can override)
 SetEnvIf Host "^(localhost|127\.0\.0\.1)" CI_ENV=development
@@ -12,6 +13,16 @@ SetEnvIf Host "^(localhost|127\.0\.0\.1)" !LIVE_HOST
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # BASE = URL folder this .htaccess lives in ("/" on the live site, "/contractor_cal/" on localhost).
+    # Rewrites below use it as an absolute path. Hosts like DreamHost map the domain to a server
+    # path (/home/user/domain/); a relative target resolves against that path and PHP then fails
+    # with "No input file specified".
+    RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$
+    RewriteRule ^(.*)$ - [E=BASE:%1]
+    # If it can't be worked out (unusual host path mapping), the site is at the domain root
+    RewriteCond %{ENV:BASE} ^$
+    RewriteRule ^ - [E=BASE:/]
 
     # Canonical origin = https + non-www (industry standard: one version, one 301 hop).
     # Works for any domain; localhost is never redirected. BASE_URL in .env must match (no www).
@@ -27,20 +38,27 @@ SetEnvIf Host "^(localhost|127\.0\.0\.1)" !LIVE_HOST
     # Block dotfiles (.env, .git, .gitignore…) but keep .well-known for SSL/ownership checks
     RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
 
-    # Remove trailing slashes (one canonical URL per page)
+    # Remove trailing slashes (one canonical URL per page), straight to https on live hosts
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ https://%{HTTP_HOST}%1 [L,R=301,NE]
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Never serve framework / source folders
-    RewriteRule ^(application|system|vendor|tests)(/|$) - [F,L]
-    RewriteRule ^(composer\.(json|lock)|build-release\.sh|readme\.rst|license\.txt|DCO\.txt|\.editorconfig|\.gitignore)$ - [F,L]
-    RewriteRule \.md$ - [F,L]
-    RewriteRule ^(node_modules(/|$)|docs(/|$)|package(-lock)?\.json$|build\.js$|build-images\.php$|build-seo-doc\.php$) - [F,L]
+    # Never serve framework / source files. Matched on REQUEST_URI so it works in any folder.
+    RewriteCond %{REQUEST_URI} /(application|system|vendor|tests|node_modules|docs)(/|$) [NC,OR]
+    RewriteCond %{REQUEST_URI} /(composer\.(json|lock)|package(-lock)?\.json|build\.js|build-images\.php|build-seo-doc\.php|build-release\.sh|readme\.rst|license\.txt|DCO\.txt)$ [NC,OR]
+    RewriteCond %{REQUEST_URI} \.md$ [NC]
+    RewriteRule ^ - [F,L]
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+    # Front controller, WordPress-style: absolute "/index.php" with nothing appended (the form that
+    # works on DreamHost and other PHP-FPM/FastCGI hosts). CodeIgniter reads the page from
+    # REQUEST_URI (uri_protocol), and the query string is kept automatically.
+    RewriteRule ^ %{ENV:BASE}index.php [L]
 </IfModule>
 
 # ---------- Compression ----------
@@ -67,6 +85,8 @@ SetEnvIf Host "^(localhost|127\.0\.0\.1)" !LIVE_HOST
     <FilesMatch "\.(css|js|svg|png|webp|ico|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+    # Version marker: lets us confirm which .htaccess is live (curl -I https://buildcalcusa.com/)
+    Header always set X-BC-Config "htaccess-2026-10-22-v3"
     Header always set X-Content-Type-Options "nosniff"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set X-Frame-Options "SAMEORIGIN"
