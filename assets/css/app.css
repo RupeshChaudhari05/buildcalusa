@@ -40,6 +40,8 @@ a{text-underline-offset:3px}
 .site-nav a:hover{color:var(--bc-text);background:var(--bc-surface-2)}
 .site-nav.open{display:flex;flex-direction:column;position:absolute;top:60px;left:0;right:0;background:var(--bc-surface);border-bottom:1px solid var(--bc-border);padding:.5rem 16px 1rem}
 @media (min-width:768px){.site-nav{display:flex;gap:.125rem}.site-nav.open{position:static;flex-direction:row;border:0;padding:0}}
+/* Mobile: the nav (which normally pushes the buttons right) is hidden, so push them right here */
+@media (max-width:767.98px){[data-theme-toggle]{margin-left:auto}}
 .icon-btn{display:grid;place-items:center;width:40px;height:40px;border-radius:.6rem;border:1px solid var(--bc-border);background:var(--bc-surface);color:var(--bc-text)}
 .icon-btn:hover{background:var(--bc-surface-2)}
 [data-bs-theme=light] .i-light,[data-bs-theme=dark] .i-dark{display:none}
