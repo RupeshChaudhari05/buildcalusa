@@ -23,7 +23,39 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
+
+/*
+ *---------------------------------------------------------------
+ * .env SETTINGS
+ *---------------------------------------------------------------
+ * Reads KEY=VALUE lines from .env next to this file (see .env.example).
+ * Values are read in config files with env('KEY', 'default').
+ */
+	if (is_file(__DIR__ . '/.env'))
+	{
+		foreach (file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
+		{
+			$line = trim($line);
+			if ($line === '' || $line[0] === '#' || strpos($line, '=') === FALSE) continue;
+			list($k, $v) = array_map('trim', explode('=', $line, 2));
+			if (strlen($v) > 1 && ($v[0] === '"' || $v[0] === "'") && substr($v, -1) === $v[0]) $v = substr($v, 1, -1);
+			$_ENV[$k] = $v;
+		}
+	}
+
+	/** Setting from .env (or the server environment), with a typed default. */
+	function env($key, $default = NULL)
+	{
+		$v = isset($_ENV[$key]) ? $_ENV[$key] : getenv($key);
+		if ($v === FALSE || $v === '') return $default;
+		if (is_bool($default)) return in_array(strtolower($v), array('1', 'true', 'yes', 'on'), TRUE);
+		if (is_int($default)) return (int) $v;
+
+		return $v;
+	}
+
+	// APP_ENV in .env wins; otherwise .htaccess sets development on localhost, production elsewhere.
+	define('ENVIRONMENT', env('APP_ENV') ?: (isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production'));
 
 /*
  *---------------------------------------------------------------

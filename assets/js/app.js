@@ -73,6 +73,7 @@
     if (!a) return;
     ev.preventDefault();
     var net = a.getAttribute('data-share'), url = location.href, title = d.title;
+    track('share', { method: net, content_type: 'calculator', item_id: location.pathname.split('/').pop() || 'home' });
     if (net === 'native') {
       if (navigator.share) { navigator.share({ title: title, url: url }).catch(function () {}); }
       else { copyText(url, 'Link copied – paste it anywhere'); }
@@ -84,32 +85,52 @@
     window.open(href, '_blank', 'noopener,width=640,height=560');
   });
 
-  /* ---------- Lazy third-party scripts (AdSense / GA4) – keeps LCP & INP fast ---------- */
-  var thirdLoaded = false;
+  /* ---------- Third-party scripts (GA4 / AdSense) – loaded after content so LCP & INP stay fast ---------- */
   function addScript(src, attrs) {
     var s = d.createElement('script'); s.async = true; s.src = src;
     for (var k in attrs || {}) s.setAttribute(k, attrs[k]);
     d.head.appendChild(s);
   }
-  function loadThird() {
-    if (thirdLoaded) return; thirdLoaded = true;
-    var ads = d.body.getAttribute('data-ads'), ga = d.body.getAttribute('data-ga');
-    var units = d.querySelectorAll('ins.adsbygoogle');
+  var ga = d.body.getAttribute('data-ga'), gaLoaded = false, adsLoaded = false;
+
+  // GA4: the gtag() stub, consent defaults and config are inline in <head>, so events queue up
+  // until gtag.js arrives. 'load' mode fetches it once the page has loaded (counts nearly every visit).
+  function loadGA() {
+    if (gaLoaded || !ga) return; gaLoaded = true;
+    addScript('https://www.googletagmanager.com/gtag/js?id=' + ga);
+  }
+  function loadAds() {
+    if (adsLoaded) return; adsLoaded = true;
+    var ads = d.body.getAttribute('data-ads'), units = d.querySelectorAll('ins.adsbygoogle');
     if (ads && units.length) {
       addScript('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + ads, { crossorigin: 'anonymous' });
       units.forEach(function () { (window.adsbygoogle = window.adsbygoogle || []).push({}); });
     }
-    if (ga) {
-      addScript('https://www.googletagmanager.com/gtag/js?id=' + ga);
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag('js', new Date()); window.gtag('config', ga);
-    }
   }
+  function onLoad(fn) { if (d.readyState === 'complete') fn(); else addEventListener('load', fn); }
   ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (e) {
-    addEventListener(e, loadThird, { once: true, passive: true });
+    addEventListener(e, function () { loadAds(); loadGA(); }, { once: true, passive: true });
   });
-  addEventListener('load', function () { setTimeout(loadThird, 3000); });
+  onLoad(function () {
+    if (d.body.getAttribute('data-ga-load') !== 'interaction') loadGA();
+    setTimeout(loadAds, 3000);
+  });
+
+  /** GA4 event; a no-op when analytics is off. */
+  function track(name, params) {
+    if (typeof window.gtag === 'function' && ga) window.gtag('event', name, params || {});
+  }
+  var toolSlug = location.pathname.split('/').pop() || 'home';
+
+  // Outbound money clicks: affiliate retailers and contractor quote partners
+  d.addEventListener('click', function (ev) {
+    var a = ev.target.closest('a[rel~="sponsored"]');
+    if (!a) return;
+    if (a.classList.contains('quote-btn')) { track('quote_click', { tool: toolSlug, link_url: a.href }); return; }
+    var store = /lowes/.test(a.href) ? 'lowes' : /amazon/.test(a.href) ? 'amazon' : 'homedepot';
+    var item = a.closest('li') ? a.closest('li').firstElementChild.textContent.trim() : '';
+    track('affiliate_click', { tool: toolSlug, store: store, item: item });
+  });
 
   /* =================================================================
      Calculator engine
@@ -189,7 +210,10 @@
       else el.value = val;
     });
 
-    form.addEventListener('input', function () { self.run(); });
+    var used = false;
+    var markUsed = function () { if (!used) { used = true; track('calculator_use', { tool: toolSlug }); } };
+    form.addEventListener('input', function () { markUsed(); self.run(); });
+    form.addEventListener('change', markUsed);
     form.addEventListener('change', function (ev) {
       var t = ev.target;
       if (t.hasAttribute && t.hasAttribute('data-fill')) self.fill(t);
@@ -198,14 +222,15 @@
     form.addEventListener('submit', function (ev) { ev.preventDefault(); self.run(); });
 
     d.querySelectorAll('[data-sys]').forEach(function (b) {
-      b.addEventListener('click', function () { self.setSys(b.getAttribute('data-sys'), true); store.set('sys', self.sys); self.run(); });
+      b.addEventListener('click', function () { self.setSys(b.getAttribute('data-sys'), true); store.set('sys', self.sys); self.run(); track('unit_change', { tool: toolSlug, system: self.sys }); });
     });
     var curSel = d.querySelector('[data-cur]');
-    if (curSel) curSel.addEventListener('change', function () { self.setCur(curSel.value, true); store.set('cur', self.cur); self.run(); });
+    if (curSel) curSel.addEventListener('change', function () { self.setCur(curSel.value, true); store.set('cur', self.cur); self.run(); track('currency_change', { tool: toolSlug, currency: self.cur }); });
 
     d.querySelectorAll('[data-calc-action]').forEach(function (b) {
       b.addEventListener('click', function () {
         var a = b.getAttribute('data-calc-action');
+        track(a === 'copy' ? 'copy_result' : a === 'print' ? 'print_result' : 'reset_calculator', { tool: toolSlug });
         if (a === 'copy') copyText(self.text(), 'Results copied');
         if (a === 'print') window.print();
         if (a === 'reset') location.href = location.pathname;

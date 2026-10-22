@@ -70,15 +70,21 @@ On localhost every tool is shown (`show_unpublished = TRUE` in the development c
 Only change a tool's `updated` date when you actually revise its content or prices.
 Faking "freshness" breaks Google's spam policies.
 
-## Before going live
-1. Upload everything to the web root. Hosts other than localhost run in **production** mode automatically (see `.htaccess`).
-2. In `.htaccess`, uncomment the **https + non-www** redirect and the **HSTS** header.
-3. In `application/config/site.php`:
-   - `author_name`, `author_role`, `reviewer_name`: use real people and real credentials (E-E-A-T).
-   - `site_email`: a working inbox.
-4. Make `application/cache/` writable (full-page cache, 60 min).
-5. Google Search Console: verify the domain and submit `/sitemap.xml`.
-6. Bing Webmaster Tools: import from Search Console.
+## Before going live (domain: buildcalcusa.com, registered)
+Already configured:
+- `.htaccess` redirects www and http to `https://buildcalcusa.com` and sends HSTS, on the live host only.
+- In production, `base_url` is pinned to `https://buildcalcusa.com/`, so canonicals, the sitemap and cached pages can't be poisoned by a forged Host header.
+
+Steps:
+1. **DNS:** add the domain to Cloudflare (free), point the A record (`@`) and `www` (CNAME to `@`) at your host, and set SSL mode to **Full (strict)**.
+2. **Upload:** put the site in the host's web root. The site must be at `/`, not a subfolder. Every host other than localhost runs in **production** mode automatically.
+3. **SSL:** install the certificate on the host (most hosts offer free Let's Encrypt). Open `http://` and `www.` once to confirm they 301 to `https://buildcalcusa.com/`.
+4. **Settings:** on the server, copy `.env.example` to `.env` and fill in GA_ID, ADSENSE_CLIENT, affiliate and quote links. `.env` is never committed and returns 403 on the web. Contact email is set to `classstatus0@gmail.com` (CONTACT_EMAIL).
+5. **No database needed:** `application/config/database.php` is kept out of git and isn't required (tested: every page works without it). Don't upload the old one, because it holds old-project credentials.
+6. In `.env`: AUTHOR_NAME, AUTHOR_ROLE, REVIEWER_NAME: use real people and real credentials (E-E-A-T).
+7. Make `application/cache/` writable (full-page cache, 60 min).
+8. Google Search Console: add a **Domain property** for buildcalcusa.com (DNS TXT record in Cloudflare) and submit `https://buildcalcusa.com/sitemap.xml`.
+9. Bing Webmaster Tools: import from Search Console.
 
 ## AdSense
 1. Apply with 8+ live tools plus the About, Privacy, Terms, Contact and Editorial pages (all included).

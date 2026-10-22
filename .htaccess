@@ -5,16 +5,27 @@ Options -Indexes
 ServerSignature Off
 AddDefaultCharset utf-8
 
-# localhost = development, everything else = production
+# localhost = development, everything else = production (APP_ENV in .env can override)
 SetEnvIf Host "^(localhost|127\.0\.0\.1)" CI_ENV=development
+SetEnvIf Host ".+" LIVE_HOST=1
+SetEnvIf Host "^(localhost|127\.0\.0\.1)" !LIVE_HOST
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Live site: force https + non-www (commented out for localhost)
-    # RewriteCond %{HTTPS} !=on [OR]
-    # RewriteCond %{HTTP_HOST} ^www\. [NC]
-    # RewriteRule ^ https://buildcalcusa.com%{REQUEST_URI} [L,R=301]
+    # Canonical origin = https + non-www (industry standard: one version, one 301 hop).
+    # Works for any domain; localhost is never redirected. BASE_URL in .env must match (no www).
+    # www (http or https) -> https://bare-domain in a single hop
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301,NE]
+    # http -> https. X-Forwarded-Proto stops redirect loops behind Cloudflare or a load balancer.
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+
+    # Block dotfiles (.env, .git, .gitignore…) but keep .well-known for SSL/ownership checks
+    RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
 
     # Remove trailing slashes (one canonical URL per page)
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -25,7 +36,7 @@ SetEnvIf Host "^(localhost|127\.0\.0\.1)" CI_ENV=development
     RewriteRule ^(application|system|vendor|tests)(/|$) - [F,L]
     RewriteRule ^(composer\.(json|lock)|build-release\.sh|readme\.rst|license\.txt|DCO\.txt|\.editorconfig|\.gitignore)$ - [F,L]
     RewriteRule \.md$ - [F,L]
-    RewriteRule ^(node_modules(/|$)|package(-lock)?\.json$|build\.js$|build-images\.php$) - [F,L]
+    RewriteRule ^(node_modules(/|$)|docs(/|$)|package(-lock)?\.json$|build\.js$|build-images\.php$|build-seo-doc\.php$) - [F,L]
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -60,8 +71,8 @@ SetEnvIf Host "^(localhost|127\.0\.0\.1)" CI_ENV=development
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    # Enable on the live https site:
-    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # HSTS on live hosts only (browsers then always use https; never on localhost)
+    Header always set Strict-Transport-Security "max-age=31536000" env=LIVE_HOST
 </IfModule>
 
 AddType application/manifest+json .webmanifest

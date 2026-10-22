@@ -92,15 +92,18 @@ if ( ! function_exists('ad_slot'))
 {
 	/**
 	 * AdSense unit with reserved height (prevents layout shift / CLS).
-	 * Shows a labelled placeholder in development when AdSense is not set.
+	 * Renders nothing until ADSENSE_CLIENT and the slot id are set in .env.
+	 * SHOW_AD_PLACEHOLDERS=true outlines the ad positions on localhost for layout checks.
 	 */
 	function ad_slot($slot_key)
 	{
-		$client = config_item('adsense_client');
-		$slot   = config_item($slot_key);
-		if ($client === '' || $slot === '' || $client === NULL || $slot === NULL)
+		$client = (string) config_item('adsense_client');
+		$slot   = (string) config_item($slot_key);
+		if ($client === '' || $slot === '')
 		{
-			return ENVIRONMENT === 'production' ? '' : '<div class="ad-wrap ad-placeholder" aria-hidden="true"><span>Ad slot (' . e($slot_key) . ') – set AdSense ids in config/site.php</span></div>';
+			return ENVIRONMENT !== 'production' && config_item('show_ad_placeholders')
+				? '<div class="ad-wrap ad-placeholder" aria-hidden="true"><span>Ad position (' . e($slot_key) . ')</span></div>'
+				: '';
 		}
 
 		return '<div class="ad-wrap"><span class="ad-label">Advertisement</span>'

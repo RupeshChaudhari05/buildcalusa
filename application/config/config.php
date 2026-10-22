@@ -23,8 +23,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-// Auto-detected so the same code runs on localhost/contractor_cal and on the live domain.
-$config['base_url'] = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http')
+// Production is pinned to the live domain: never trust the Host header there, because the
+// full-page cache is keyed by path only and a forged host would poison cached links/canonicals.
+// Development (localhost) auto-detects so it works from any subfolder.
+$config['base_url'] = ENVIRONMENT === 'production' ? rtrim(env('BASE_URL', 'https://buildcalcusa.com'), '/') . '/' : ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http')
 	. '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost')
 	. rtrim(str_replace('\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/')), '/') . '/';
 
@@ -399,7 +401,7 @@ $config['sess_regenerate_destroy'] = FALSE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= FALSE;
+$config['cookie_secure']	= ENVIRONMENT === 'production';
 $config['cookie_httponly'] 	= FALSE;
 $config['cookie_samesite'] 	= 'Lax';
 

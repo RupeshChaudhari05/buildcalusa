@@ -49,10 +49,18 @@ class Seo extends MY_Controller {
 
 	public function ads()
 	{
+		// IAB ads.txt: one "domain, publisher id, relationship, cert authority id" per line
 		$client = (string) config_item('adsense_client');
-		$txt    = $client !== ''
-			? 'google.com, ' . str_replace('ca-', '', $client) . ", DIRECT, f08c47fec0942fa0\n"
-			: "# Add your AdSense publisher id in application/config/site.php\n";
+		$lines  = array();
+		if ($client !== '')
+		{
+			$lines[] = 'google.com, ' . preg_replace('/^ca-/', '', $client) . ', DIRECT, f08c47fec0942fa0';
+		}
+		foreach ((array) config_item('ads_txt_extra') as $extra)
+		{
+			$lines[] = $extra;
+		}
+		$txt = $lines ? implode("\n", $lines) . "\n" : "# No ad networks configured yet: set ADSENSE_CLIENT in .env\n";
 
 		$this->send('text/plain', $txt);
 	}

@@ -53,6 +53,16 @@ $org = array(
 <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
 <meta name="google-adsense-account" content="<?= e(config_item('adsense_client')) ?>">
 <?php endif; ?>
+<?php if (config_item('ga_id') || config_item('adsense_client')): ?>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+<?php if (config_item('consent_mode')): ?>
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500,region:['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH']});
+gtag('consent','default',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});
+<?php endif; ?>
+<?php if (config_item('ga_id')): ?>gtag('js',new Date());gtag('config','<?= e(config_item('ga_id')) ?>');<?php endif; ?>
+</script>
+<?php endif; ?>
 <?php if (config_item('google_site_verification')): ?><meta name="google-site-verification" content="<?= e(config_item('google_site_verification')) ?>"><?php endif; ?>
 <?php if (config_item('bing_site_verification')): ?><meta name="msvalidate.01" content="<?= e(config_item('bing_site_verification')) ?>"><?php endif; ?>
 <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="32x32">
@@ -85,7 +95,7 @@ $org = array(
 <?= json_ld($s) ?>
 <?php endforeach; ?>
 </head>
-<body data-ads="<?= e(config_item('adsense_client')) ?>" data-ga="<?= e(config_item('ga_id')) ?>">
+<body data-ads="<?= e(config_item('adsense_client')) ?>" data-ga="<?= e(config_item('ga_id')) ?>" data-ga-load="<?= e(config_item('ga_load')) ?>">
 <a class="visually-hidden-focusable skip" href="#main">Skip to content</a>
 
 <header class="site-header">
