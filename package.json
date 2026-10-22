@@ -1,0 +1,13 @@
+{
+  "name": "buildcalcusa",
+  "private": true,
+  "description": "Asset build for BuildCalcUSA (CodeIgniter 3). Run `npm run build` after changing CSS, JS or views.",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "csso": "5.0.5",
+    "purgecss": "6.0.0",
+    "terser": "5.36.0"
+  }
+}

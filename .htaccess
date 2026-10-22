@@ -1,0 +1,67 @@
+# ----------------------------------------------------------------------
+# BuildCalcUSA – Apache config (CodeIgniter 3)
+# ----------------------------------------------------------------------
+Options -Indexes
+ServerSignature Off
+AddDefaultCharset utf-8
+
+# localhost = development, everything else = production
+SetEnvIf Host "^(localhost|127\.0\.0\.1)" CI_ENV=development
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Live site: force https + non-www (commented out for localhost)
+    # RewriteCond %{HTTPS} !=on [OR]
+    # RewriteCond %{HTTP_HOST} ^www\. [NC]
+    # RewriteRule ^ https://buildcalcusa.com%{REQUEST_URI} [L,R=301]
+
+    # Remove trailing slashes (one canonical URL per page)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Never serve framework / source folders
+    RewriteRule ^(application|system|vendor|tests)(/|$) - [F,L]
+    RewriteRule ^(composer\.(json|lock)|build-release\.sh|readme\.rst|license\.txt|DCO\.txt|\.editorconfig|\.gitignore)$ - [F,L]
+    RewriteRule \.md$ - [F,L]
+    RewriteRule ^(node_modules(/|$)|package(-lock)?\.json$|build\.js$|build-images\.php$) - [F,L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+</IfModule>
+
+# ---------- Compression ----------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml text/javascript application/xml application/rss+xml application/javascript application/x-javascript application/json application/manifest+json image/svg+xml image/x-icon
+</IfModule>
+
+# ---------- Browser caching ----------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/manifest+json "access plus 1 week"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Assets are versioned with ?v=mtime, so they can be immutable
+    <FilesMatch "\.(css|js|svg|png|webp|ico|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    # Enable on the live https site:
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+AddType application/manifest+json .webmanifest
